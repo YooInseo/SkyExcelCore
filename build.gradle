@@ -7,12 +7,7 @@ group 'org.sample'
 version '1.0-SNAPSHOT'
 apply plugin: 'groovy'
 
-repositories {
-    maven {
-        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
-    }
 
-}
 
 dependencies {
 
@@ -22,7 +17,7 @@ dependencies {
 }
 
 jar {
-    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission플러그인테스트\\1.18.2\n'))
+    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission\\플러그인테스트\\1.18.2\\plugins\\'))
 }
 java {
     toolchain {

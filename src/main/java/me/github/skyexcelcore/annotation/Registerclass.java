@@ -59,28 +59,27 @@ public class Registerclass implements CommandExecutor, TabCompleter {
         }
     }
 
-    public void invoke(Class clazz, Player player, String arg, String[] args) {
+    public void invoke(Class clazz, Player player, String[] args) {
         for (Method method : clazz.getMethods()) {
             Annotation adjustcclazz = method.getAnnotation(Adjust.class);
 
             if (adjustcclazz instanceof Adjust) {
                 try {
-                    if(((Adjust) adjustcclazz).parameter() == args.length - 1){
+                    if (((Adjust) adjustcclazz).parameter() == args.length - 1) {
                         if (args[((Adjust) adjustcclazz).parameter()].equalsIgnoreCase(((Adjust) adjustcclazz).args())) {
                             Class<?> newclazz = Class.forName(clazz.getName());
                             Object object = newclazz.newInstance();
                             method.invoke(object, player, args);
                         }
-                    } else{
+                    } else {
                         if (args.length > ((Adjust) adjustcclazz).parameter()) {
-                            if(args[((Adjust) adjustcclazz).parameter()].equalsIgnoreCase(((Adjust) adjustcclazz).args())){
+                            if (args[((Adjust) adjustcclazz).parameter()].equalsIgnoreCase(((Adjust) adjustcclazz).args())) {
                                 Class<?> newclazz = Class.forName(clazz.getName());
                                 Object object = newclazz.newInstance();
                                 method.invoke(object, player, args);
                             }
                         }
                     }
-
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 } catch (InvocationTargetException e) {
@@ -100,7 +99,7 @@ public class Registerclass implements CommandExecutor, TabCompleter {
             label, @NotNull String[] args) {
 
         if (sender instanceof Player) {
-            invoke(clazz.getClass(), (Player) sender, args[args.length - 1], args);
+            invoke(clazz.getClass(), (Player) sender, args);
 
         } else {
             sender.sendMessage(ChatColor.RED + "Did you register this command on your Plugin? {console=true} ");
