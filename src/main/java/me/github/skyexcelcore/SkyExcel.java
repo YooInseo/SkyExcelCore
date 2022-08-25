@@ -15,7 +15,7 @@ public class SkyExcel extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         super.onEnable();
-        new Registerclass(this);
+        new Registerclass(new test().getClass(),this);
     }
 
 

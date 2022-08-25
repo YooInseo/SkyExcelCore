@@ -9,5 +9,8 @@ public class test {
     public void test(Player sender){
         sender.sendMessage("Test");
     }
-
+    @Adjust(args = {"test int"}) //Hi test
+    public void inttest(Player sender, int value){
+        sender.sendMessage("Test" + value);
+    }
 }
