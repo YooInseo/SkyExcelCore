@@ -2,8 +2,8 @@ package me.github.skyexcelcore;
 
 
 import me.github.skyexcelcore.annotation.Registerclass;
+import me.github.skyexcelcore.command.abcd;
 import me.github.skyexcelcore.command.test;
-import me.github.skyexcelcore.data.My;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -15,7 +15,9 @@ public class SkyExcel extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         super.onEnable();
-        new Registerclass(new test().getClass(),this);
+
+        new Registerclass(new test(),this);
+        new Registerclass(new abcd(),this);
     }
 
 
