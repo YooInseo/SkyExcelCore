@@ -22,7 +22,7 @@ dependencies {
 }
 
 jar {
-    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission\\플러그인테스트\\1.18.2\\plugins'))
+    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission플러그인테스트\\1.18.2\n'))
 }
 java {
     toolchain {

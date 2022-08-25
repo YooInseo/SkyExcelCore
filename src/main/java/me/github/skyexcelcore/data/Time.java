@@ -1,6 +1,8 @@
 package me.github.skyexcelcore.data;
 
-public class Time {
+import org.bukkit.event.Listener;
+
+public class Time implements Listener {
 
 
 
