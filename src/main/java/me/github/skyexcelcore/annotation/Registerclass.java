@@ -38,71 +38,99 @@ public class Registerclass implements CommandExecutor, TabCompleter {
 
     public void registerClass(Class clazz) {
         Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
-
-        if (adjustclass != null) {
+        if(adjustclass.console()){
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "console is " + adjustclass.console());
             this.label = adjustclass.command();
-            for (Method method : clazz.getMethods()) {
-                Annotation adjustcclazz = method.getAnnotation(Adjust.class);
-                if (adjustcclazz instanceof Adjust) {
-                    Adjust adjust = (Adjust) adjustcclazz;
+            this.tabs.add(new Parameter(adjustclass.parameter(), adjustclass.tab(),adjustclass.args(),adjustclass.console()));
+        } else{
+            if (adjustclass != null) {
+                this.label = adjustclass.command();
+                for (Method method : clazz.getMethods()) {
+                    Annotation adjustcclazz = method.getAnnotation(Adjust.class);
+                    if (adjustcclazz instanceof Adjust) {
+                        Adjust adjust = (Adjust) adjustcclazz;
 
-                    if (adjust != null) {
-                        this.tabs.add(new Parameter(adjust.parameter(), adjust.tab(), adjust.args()));
-
-                    } else {
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + " Can't find the adjust annotation anywhere");
+                        if (adjust != null) {
+                            this.tabs.add(new Parameter(adjust.parameter(), adjust.tab(), adjust.args(), adjustclass.console()));
+                        } else {
+                            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + " Can't find the adjust annotation anywhere");
+                        }
                     }
                 }
+            } else {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + " Can't find the adjust annotation anywhere in class : " + clazz.getName());
             }
-        } else {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + " Can't find the adjust annotation anywhere in class : " + clazz.getName());
         }
     }
 
-    public void invoke(Class clazz, Player player, String[] args) {
-        for (Method method : clazz.getMethods()) {
-            Annotation adjustcclazz = method.getAnnotation(Adjust.class);
+    public void invoke(Class clazz, CommandSender sender, String[] args) {
+        try {
+        Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
+        if(adjustclass.console()){
+            for (Method method : clazz.getMethods()) {
+                Adjust adjustcclazz = method.getAnnotation(Adjust.class);
+                if(adjustcclazz != null){
+                    if(adjustcclazz.label() ){
+                        Class<?> newclazz = Class.forName(clazz.getName());
+                        Object object = newclazz.newInstance();
+                        method.invoke(object, sender, args);
+                    }
+                }
 
-            if (adjustcclazz instanceof Adjust) {
-                try {
-                    if (((Adjust) adjustcclazz).parameter() == args.length - 1) {
-                        if (args[((Adjust) adjustcclazz).parameter()].equalsIgnoreCase(((Adjust) adjustcclazz).args())) {
+            }
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void invoke(Class clazz, Player sender, String[] args) {
+        try {
+            Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
+            if(adjustclass.console()){
+                for (Method method : clazz.getMethods()) {
+                    Adjust adjustcclazz = method.getAnnotation(Adjust.class);
+                    if(adjustcclazz != null){
+                        if(adjustcclazz.label() ){
                             Class<?> newclazz = Class.forName(clazz.getName());
                             Object object = newclazz.newInstance();
-                            method.invoke(object, player, args);
-                        }
-                    } else {
-                        if (args.length > ((Adjust) adjustcclazz).parameter()) {
-                            if (args[((Adjust) adjustcclazz).parameter()].equalsIgnoreCase(((Adjust) adjustcclazz).args())) {
-                                Class<?> newclazz = Class.forName(clazz.getName());
-                                Object object = newclazz.newInstance();
-                                method.invoke(object, player, args);
-                            }
+                            method.invoke(object, sender, args);
                         }
                     }
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
+
                 }
             }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
         }
     }
-
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String
             label, @NotNull String[] args) {
 
         if (sender instanceof Player) {
-            invoke(clazz.getClass(), (Player) sender, args);
+            Player player = (Player) sender;
+            invoke(clazz.getClass(), player,  args);
 
         } else {
-            sender.sendMessage(ChatColor.RED + "Did you register this command on your Plugin? {console=true} ");
+            for(Parameter parameter : this.tabs){
+                if(parameter.console){
+                    invoke(clazz.getClass() ,sender, args);
+
+                }
+            }
         }
         return false;
     }
@@ -133,10 +161,13 @@ public class Registerclass implements CommandExecutor, TabCompleter {
         boolean tab;
         String args;
 
-        public Parameter(int parameter, boolean tab, String args) {
+        boolean console;
+
+        public Parameter(int parameter, boolean tab, String args,boolean console) {
             this.parameter = parameter;
             this.tab = tab;
             this.args = args;
+            this.console = console;
         }
     }
 }

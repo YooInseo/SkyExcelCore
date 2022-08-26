@@ -1,11 +1,22 @@
 package me.github.skyexcelcore.command;
 
 import me.github.skyexcelcore.annotation.Adjust;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Adjust(command = "Hi")
+@Adjust(command = "Hi",console = true)
 public class test {
 
+    @Adjust(label = true)
+    public void console(CommandSender sender, String[] args){
+        if(args.length > 0){
+            sender.sendMessage("Tests " + args[0]);
+        } else{
+            sender.sendMessage("인자값을 입력해 주세요.");
+        }
+
+    }
     @Adjust(args = "first", tab = true) //Hi test
     public void test(Player sender, String[] args) {
         sender.sendMessage("test");
