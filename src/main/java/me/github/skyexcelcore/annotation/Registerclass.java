@@ -38,11 +38,11 @@ public class Registerclass implements CommandExecutor, TabCompleter {
 
     public void registerClass(Class clazz) {
         Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
-        if(adjustclass.console()){
+        if (adjustclass.console()) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "console is " + adjustclass.console());
             this.label = adjustclass.command();
-            this.tabs.add(new Parameter(adjustclass.parameter(), adjustclass.tab(),adjustclass.args(),adjustclass.console()));
-        } else{
+            this.tabs.add(new Parameter(adjustclass.parameter(), adjustclass.tab(), adjustclass.args(), adjustclass.console()));
+        } else {
             if (adjustclass != null) {
                 this.label = adjustclass.command();
                 for (Method method : clazz.getMethods()) {
@@ -65,42 +65,16 @@ public class Registerclass implements CommandExecutor, TabCompleter {
 
     public void invoke(Class clazz, CommandSender sender, String[] args) {
         try {
-        Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
-        if(adjustclass.console()){
-            for (Method method : clazz.getMethods()) {
-                Adjust adjustcclazz = method.getAnnotation(Adjust.class);
-                if(adjustcclazz != null){
-                    if(adjustcclazz.label() ){
-                        Class<?> newclazz = Class.forName(clazz.getName());
-                        Object object = newclazz.newInstance();
-                        method.invoke(object, sender, args);
-                    }
-                }
-
-            }
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void invoke(Class clazz, Player sender, String[] args) {
-        try {
             Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
-            if(adjustclass.console()){
+            if (adjustclass.console()) {
                 for (Method method : clazz.getMethods()) {
                     Adjust adjustcclazz = method.getAnnotation(Adjust.class);
-                    if(adjustcclazz != null){
-                        if(adjustcclazz.label() ){
+                    if (adjustcclazz != null) {
+                        if (adjustcclazz.label()) {
                             Class<?> newclazz = Class.forName(clazz.getName());
                             Object object = newclazz.newInstance();
                             method.invoke(object, sender, args);
+                            System.out.println("Test");
                         }
                     }
 
@@ -116,18 +90,62 @@ public class Registerclass implements CommandExecutor, TabCompleter {
             throw new RuntimeException(e);
         }
     }
+
+    public void invoke(Class clazz, Player sender, String[] args) {
+        try {
+            Adjust adjustclass = (Adjust) clazz.getAnnotation(Adjust.class);
+            if (!adjustclass.console()) {
+                for (Method method : clazz.getMethods()) {
+                    Adjust adjustcclazz = method.getAnnotation(Adjust.class);
+                    if (adjustcclazz != null) {
+
+                       //TODO 현재 문제 : 파라미터 인자값보다 많을 시 이상의 args 값을 못 호출함.
+                        if (adjustcclazz.parameter() == args.length - 1 && args[adjustcclazz.parameter()].equalsIgnoreCase(adjustcclazz.args())) {
+                            if (!adjustcclazz.label()) {
+                                Class<?> newclazz = Class.forName(clazz.getName());
+                                Object object = newclazz.newInstance();
+                                method.invoke(object, sender, args);
+                            }
+                        } else if (adjustcclazz.parameter() < args.length) {
+
+                            System.out.println(args[adjustcclazz.parameter()].equalsIgnoreCase(adjustcclazz.args()));
+                            if (args[adjustcclazz.parameter()].equalsIgnoreCase(adjustcclazz.args())) {
+                                if (!adjustcclazz.label()) {
+                                    Class<?> newclazz = Class.forName(clazz.getName());
+                                    Object object = newclazz.newInstance();
+                                    method.invoke(object, sender, args);
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String
             label, @NotNull String[] args) {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            invoke(clazz.getClass(), player,  args);
+
+            invoke(clazz.getClass(), player, args);
 
         } else {
-            for(Parameter parameter : this.tabs){
-                if(parameter.console){
-                    invoke(clazz.getClass() ,sender, args);
+            for (Parameter parameter : this.tabs) {
+                if (parameter.console) {
+                    invoke(clazz.getClass(), sender, args);
 
                 }
             }
@@ -163,7 +181,7 @@ public class Registerclass implements CommandExecutor, TabCompleter {
 
         boolean console;
 
-        public Parameter(int parameter, boolean tab, String args,boolean console) {
+        public Parameter(int parameter, boolean tab, String args, boolean console) {
             this.parameter = parameter;
             this.tab = tab;
             this.args = args;
