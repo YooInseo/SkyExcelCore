@@ -1,5 +1,6 @@
 package me.github.skyexcelcore.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.UUID;
@@ -29,6 +30,13 @@ public class Region {
             minZ = Math.min(firstPoint.getZ(), secondPoint.getZ());
         }
 
+    }
+    public Location getMinLoc(){
+        return new Location(Bukkit.getWorld(worldUniqueId),minX,minY,minZ);
+    }
+
+    public Location getMaxLoc(){
+        return new Location(Bukkit.getWorld(worldUniqueId),maxX,maxY,maxZ);
     }
 
     public boolean locationIsInRegion(Location loc) {
