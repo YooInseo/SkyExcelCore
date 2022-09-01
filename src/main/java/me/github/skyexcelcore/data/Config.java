@@ -1,12 +1,15 @@
 package me.github.skyexcelcore.data;
 
-import org.apache.commons.io.FilenameUtils;
+import me.github.skyexcelcore.SkyExcel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -28,10 +31,9 @@ public class Config {
 
     private ConfigurationSection section;
 
-    public Config(String name, Plugin plugin) {
+    public Config(String name) {
         this.name = name;
-
-        this.plugin = plugin;
+        plugin = SkyExcel.getNewPlugin();
     }
 
     public void setSection(ConfigurationSection section) {
@@ -168,13 +170,70 @@ public class Config {
         if (item.hasItemMeta()) {
             getConfig().set(path + ".meta.name", item.getItemMeta().getDisplayName());
             getConfig().set(path + ".meta.lore", item.getItemMeta().getLore());
+            getConfig().set(path + ".meta.CustomModelData", item.getItemMeta().getCustomModelData());
         }
         getConfig().set(path + ".type", item.getType().name());
         getConfig().set(path + ".amount", item.getAmount());
-        getConfig().set(path + ".data", item.getData());
+
 
         saveConfig();
         return item;
+    }
+
+    public List<ItemStack> addItemStack(String path, ItemStack stack) {
+        List<ItemStack> items = (List<ItemStack>) getConfig().getList(path);
+        if (getConfig().get(path) == null) {
+            newArrayList(path);
+            items.add(stack);
+
+        } else {
+            items.add(stack);
+        }
+        return items;
+    }
+
+
+    public ItemStack getItemStack(String path, boolean single) {
+        if (getConfig().get(path) != null) {
+            String name = getString(path + ".meta.name");
+            String type = getString(path + ".type");
+            ItemStack itemstack = new ItemStack(Material.valueOf(type));
+            int amount = getInteger(path + ".amount");
+            if (getConfig().get(path + ".meta") != null) {
+                ItemMeta meta = itemstack.getItemMeta();
+                if (name != "") {
+                    meta.setDisplayName(name);
+                }
+                if (getConfig().get(path + ".meta.lore") != null) {
+                    List<String> lore = (List<String>) getConfig().getList(path + ".meta.lore");
+
+                    if (lore != null) {
+                        if (name != "") {
+                            meta.setLore(lore);
+                        } else {
+                            meta.setDisplayName(name);
+
+                            meta.setLore(lore);
+                        }
+                    } else {
+                        meta.setDisplayName(name);
+                    }
+                }
+                if (getConfig().get(path + ".meta.CustomModelData") != null) {
+                    int CustomModel = getInteger(path + ".meta.CustomModelData");
+                    meta.setCustomModelData(CustomModel);
+                }
+                itemstack.setItemMeta(meta);
+            }
+
+            if (single) {
+                itemstack.setAmount(1);
+            } else {
+                itemstack.setAmount(amount);
+            }
+            return itemstack;
+        }
+        return null;
     }
 
     public boolean setSectionTime(String path, int... times) {
@@ -255,9 +314,13 @@ public class Config {
         return false;
     }
 
-    public void test() {
-        setTime("", 1, 1, 1, 1);
+    public void setInventory(String path, Inventory inv) {
+        setInteger(path + ".size", inv.getSize());
+        for (int i = 0; i < inv.getSize(); i++) {
+            inv.getItem(i);
+        }
     }
+
 
     public Location getLocation(String path) {
         if (getConfig().get(path) != null) {
@@ -389,7 +452,8 @@ public class Config {
         File[] test = this.file.listFiles();
         for (File file : test) {
             if (file != null) {
-                String name = FilenameUtils.getName(file.getPath());
+
+                String name = file.getName();
                 name = name.replaceAll(".yml", "");
                 results.add(name);
             }
