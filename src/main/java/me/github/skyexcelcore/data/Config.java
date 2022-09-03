@@ -7,7 +7,11 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -16,10 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class Config {
@@ -170,7 +171,9 @@ public class Config {
         if (item.hasItemMeta()) {
             getConfig().set(path + ".meta.name", item.getItemMeta().getDisplayName());
             getConfig().set(path + ".meta.lore", item.getItemMeta().getLore());
-            getConfig().set(path + ".meta.CustomModelData", item.getItemMeta().getCustomModelData());
+            if (item.getItemMeta().hasCustomModelData()) {
+                getConfig().set(path + ".meta.CustomModelData", item.getItemMeta().getCustomModelData());
+            }
         }
         getConfig().set(path + ".type", item.getType().name());
         getConfig().set(path + ".amount", item.getAmount());
@@ -181,14 +184,17 @@ public class Config {
     }
 
     public List<ItemStack> addItemStack(String path, ItemStack stack) {
-        List<ItemStack> items = (List<ItemStack>) getConfig().getList(path);
+        List<ItemStack> items;
         if (getConfig().get(path) == null) {
             newArrayList(path);
+            items = (List<ItemStack>) getConfig().getList(path);
             items.add(stack);
 
         } else {
+            items = (List<ItemStack>) getConfig().getList(path);
             items.add(stack);
         }
+        saveConfig();
         return items;
     }
 
@@ -225,7 +231,6 @@ public class Config {
                 }
                 itemstack.setItemMeta(meta);
             }
-
             if (single) {
                 itemstack.setAmount(1);
             } else {
@@ -314,11 +319,84 @@ public class Config {
         return false;
     }
 
-    public void setInventory(String path, Inventory inv) {
-        setInteger(path + ".size", inv.getSize());
-        for (int i = 0; i < inv.getSize(); i++) {
-            inv.getItem(i);
+    public void saveInventory(String path, Inventory inv) {
+        for (HumanEntity viewers : inv.getViewers()) {
+            InventoryView OpenInv = viewers.getOpenInventory();
+            if (OpenInv.getTopInventory().equals(inv) && !inv.getType().equals(InventoryType.CRAFTING)) {
+                for (int i = 0; i < inv.getSize(); i++) {
+                    ItemStack item = inv.getItem(i);
+                    setString(path + ".inv.title", OpenInv.getTitle());
+                    setInteger(path + ".inv.size", inv.getSize());
+                    if (item != null) {
+                        if (getConfig().get(path + ".inv.items") == null) {
+                            ConfigurationSection round = getConfig().createSection(path + ".inv.items.0");
+
+                            round.set("slot", i);
+                            round.set("Item.Material", item.getType().name());
+                            round.set("Item.Amount", item.getAmount());
+                            round.set("Item.Durability", item.getDurability());
+
+                            ItemMeta meta = item.getItemMeta();
+                            if (item.hasItemMeta()) {
+                                round.set("Item.Meta.display-name", meta.getDisplayName());
+                                round.set("Item.Meta.lore", meta.getLore());
+                                if (item.getItemMeta().hasCustomModelData()) {
+                                    round.set("CustomModelData", meta.getCustomModelData());
+                                }
+                            }
+
+
+                        } else {
+                            ConfigurationSection slot = getConfig().createSection(path + ".inv.items." + i);
+                            slot.set("slot", i);
+                            slot.set("Item.Material", item.getType().name());
+                            slot.set("Item.Amount", item.getAmount());
+                            slot.set("Item.Durability", item.getDurability());
+
+                            ItemMeta meta = item.getItemMeta();
+                            if (item.hasItemMeta()) {
+                                slot.set("Item.Meta.display-name", meta.getDisplayName());
+                                slot.set("Item.Meta.lore", meta.getLore());
+                                if (item.getItemMeta().hasCustomModelData()) {
+                                    slot.set("CustomModelData", meta.getCustomModelData());
+                                }
+                            }
+                        }
+                    } else {
+                        getConfig().set(path + ".inv.items." + i, null);
+                    }
+                }
+            }
+            saveConfig();
         }
+    }
+
+    public Inventory getInventory(String path) {
+        if (getConfig().get(path + ".inv.size") != null && getConfig().get(path + ".inv.title") != null) {
+            Inventory inv = Bukkit.createInventory(null, getInteger(path + ".inv.size"), getString(path + ".inv.title"));
+            for (int i = 0; i < inv.getSize(); i++) {
+
+                String name = path + ".inv.items." + i;
+
+                if (getConfig().get(name) != null) {
+                    int slot = getInteger(name + ".slot");
+                    int amount = getInteger(name + ".Item.Amount");
+                    String type = getString(name + ".Item.Material");
+
+                    ItemStack item = new ItemStack(Material.valueOf(type));
+                    ItemMeta meta = item.getItemMeta();
+                    item.setAmount(amount);
+                    inv.setItem(slot, item);
+                    getConfig().set(name + ".test", "asdf");
+
+                }
+            }
+            saveConfig();
+            return inv;
+
+        }
+
+        return null;
     }
 
 
