@@ -7,11 +7,14 @@ import me.github.skyexcelcore.annotation.Registerclass;
 import me.github.skyexcelcore.command.abcd;
 import me.github.skyexcelcore.command.test;
 import me.github.skyexcelcore.customer.Address;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+
+import java.util.Arrays;
 
 
 public class SkyExcel extends JavaPlugin {
@@ -49,10 +52,10 @@ public class SkyExcel extends JavaPlugin {
 
 
 
-    public static void RegisterEvents(Plugin plugin, Listener listener) {
-        PluginManager pm = plugin.getServer().getPluginManager();
-        pm.registerEvents(listener, plugin);
+    public static void RegisterEvents(Plugin plugin, Listener[] listeners) {
+        PluginManager pm = Bukkit.getPluginManager();
+        Arrays.stream(listeners).forEach(listener ->
+                pm.registerEvents(listener, plugin));
     }
-
 
 }

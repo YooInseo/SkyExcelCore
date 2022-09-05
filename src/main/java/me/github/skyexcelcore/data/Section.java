@@ -4,7 +4,6 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class Section {
     private ConfigurationSection section;
-
     private Config config;
 
     public Section(Config config) {
