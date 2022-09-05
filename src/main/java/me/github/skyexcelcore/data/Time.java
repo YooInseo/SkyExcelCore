@@ -12,6 +12,7 @@ public class Time implements Listener {
     private long DAY_IN_MILLIS;
 
     public Time(int... times) {
+
         switch (times.length) {
             case 1:
                 addDay(times[0]);
@@ -32,6 +33,11 @@ public class Time implements Listener {
                 addSecond(times[3]);
                 break;
         }
+    }
+
+
+    public Time(long mill){
+        setMillSecond(mill);
     }
 
     public long addDay(long days) {
@@ -79,6 +85,7 @@ public class Time implements Listener {
 
     public long minSecond(long min) {
         long milliseconds = min * 1000;
+        if(SECOND() != 0 || MINUTE() != 0 || HOUR() != 0 || DAY() != 0 )
         SECOND_IN_MILLIS = SECOND_IN_MILLIS - milliseconds;
         return SECOND_IN_MILLIS;
     }

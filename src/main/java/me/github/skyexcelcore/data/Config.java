@@ -4,9 +4,11 @@ import me.github.skyexcelcore.SkyExcel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -27,14 +29,16 @@ public class Config {
     public FileConfiguration config;
     public File file;
     private String name;
+    private ConfigurationSection section;
 
     private Plugin plugin;
 
-    private ConfigurationSection section;
-
     public Config(String name) {
         this.name = name;
-        plugin = SkyExcel.getNewPlugin();
+    }
+
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 
     public void setSection(ConfigurationSection section) {
@@ -107,54 +111,55 @@ public class Config {
     }
 
     public void setString(String path, String msg) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, msg);
-            this.saveConfig();
-        }
+
+        getConfig().set(path, msg);
+        saveConfig();
+
     }
 
     public void setInteger(String path, int integer) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, integer);
-
-            this.saveConfig();
-        }
+        getConfig().set(path, integer);
+        saveConfig();
     }
 
     public void setBoolean(String path, boolean Boolean) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, Boolean);
 
-            this.saveConfig();
-        }
+        getConfig().set(path, Boolean);
+
+        this.saveConfig();
+
     }
 
     public void setLong(String path, Long value) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, value);
-            this.saveConfig();
-        }
+
+        getConfig().set(path, value);
+        saveConfig();
+
     }
 
     public void setFloat(String path, float value) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, value);
-            this.saveConfig();
-        }
+
+        getConfig().set(path, value);
+
+        saveConfig();
+    }
+
+    public float getFloat(String path) {
+        return (float) getConfig().get(path);
     }
 
     public void setDouble(String path, double value) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, value);
-            this.saveConfig();
-        }
+
+        getConfig().set(path, value);
+        this.saveConfig();
+
     }
 
     public void setObject(String path, Object value) {
-        if (getConfig().get(path) == null) {
-            getConfig().set(path, value);
-            this.saveConfig();
-        }
+
+        getConfig().set(path, value);
+        this.saveConfig();
+
     }
 
     public boolean setLocation(String path, Location value) {
@@ -163,7 +168,8 @@ public class Config {
         getConfig().set(path + ".x", value.getX());
         getConfig().set(path + ".y", value.getY());
         getConfig().set(path + ".z", value.getZ());
-
+        getConfig().set(path + ".pitch", value.getPitch());
+        getConfig().set(path + ".yaw", value.getYaw());
         return this.saveConfig();
     }
 
@@ -241,84 +247,6 @@ public class Config {
         return null;
     }
 
-    public boolean setSectionTime(String path, int... times) {
-
-        if (getConfig().get(path) == null) {
-            switch (times.length) {
-                case 1:
-                    section.set(path + ".day", times[0]);
-                    section.set(path + ".hour", 0);
-                    section.set(path + ".min", 0);
-                    section.set(path + ".hour", 0);
-
-                    break;
-                case 2:
-                    section.set(path + ".day", times[0]);
-                    section.set(path + ".hour", times[1]);
-                    section.set(path + ".min", 0);
-                    section.set(path + ".second", 0);
-                    break;
-                case 3:
-                    section.set(path + ".day", times[0]);
-                    section.set(path + ".hour", times[1]);
-                    section.set(path + ".min", times[2]);
-                    section.set(path + ".second", 0);
-                    break;
-                case 4:
-                    section.set(path + ".day", times[0]);
-                    section.set(path + ".hour", times[1]);
-                    section.set(path + ".min", times[2]);
-                    section.set(path + ".second", times[3]);
-                    break;
-            }
-
-            return this.saveConfig();
-        }
-        return false;
-    }
-
-
-    /***
-     *
-     * @param path
-     * @param times day,hour,minute,second
-     */
-    public boolean setTime(String path, int... times) {
-        if (getConfig().get(path) == null) {
-            switch (times.length) {
-                case 1:
-                    setInteger(path + ".day", times[0]);
-                    setInteger(path + ".hour", 0);
-                    setInteger(path + ".min", 0);
-                    setInteger(path + ".hour", 0);
-
-                    break;
-                case 2:
-                    setInteger(path + ".day", times[0]);
-                    setInteger(path + ".hour", times[1]);
-                    setInteger(path + ".min", 0);
-                    setInteger(path + ".second", 0);
-                    break;
-                case 3:
-                    setInteger(path + ".day", times[0]);
-                    setInteger(path + ".hour", times[1]);
-                    setInteger(path + ".min", times[2]);
-                    setInteger(path + ".second", 0);
-                    break;
-                case 4:
-                    setInteger(path + ".day", times[0]);
-                    setInteger(path + ".hour", times[1]);
-                    setInteger(path + ".min", times[2]);
-                    setInteger(path + ".second", times[3]);
-                    break;
-            }
-
-            return this.saveConfig();
-        }
-
-        return false;
-    }
-
     public void saveInventory(String path, Inventory inv) {
         for (HumanEntity viewers : inv.getViewers()) {
             InventoryView OpenInv = viewers.getOpenInventory();
@@ -329,46 +257,41 @@ public class Config {
                     setInteger(path + ".inv.size", inv.getSize());
                     if (item != null) {
                         if (getConfig().get(path + ".inv.items") == null) {
-                            ConfigurationSection round = getConfig().createSection(path + ".inv.items.0");
-
-                            round.set("slot", i);
-                            round.set("Item.Material", item.getType().name());
-                            round.set("Item.Amount", item.getAmount());
-                            round.set("Item.Durability", item.getDurability());
-
-                            ItemMeta meta = item.getItemMeta();
-                            if (item.hasItemMeta()) {
-                                round.set("Item.Meta.display-name", meta.getDisplayName());
-                                round.set("Item.Meta.lore", meta.getLore());
-                                if (item.getItemMeta().hasCustomModelData()) {
-                                    round.set("CustomModelData", meta.getCustomModelData());
-                                }
-                            }
-
-
+                            setItem(path, item, i, 0);
                         } else {
-                            ConfigurationSection slot = getConfig().createSection(path + ".inv.items." + i);
-                            slot.set("slot", i);
-                            slot.set("Item.Material", item.getType().name());
-                            slot.set("Item.Amount", item.getAmount());
-                            slot.set("Item.Durability", item.getDurability());
 
-                            ItemMeta meta = item.getItemMeta();
-                            if (item.hasItemMeta()) {
-                                slot.set("Item.Meta.display-name", meta.getDisplayName());
-                                slot.set("Item.Meta.lore", meta.getLore());
-                                if (item.getItemMeta().hasCustomModelData()) {
-                                    slot.set("CustomModelData", meta.getCustomModelData());
-                                }
-                            }
+                            setItem(path, item, i, i);
+                            getConfig().set(getConfig().get(path + ".inv.items") + ".test", "asdf");
+
                         }
                     } else {
                         getConfig().set(path + ".inv.items." + i, null);
                     }
                 }
             }
-            saveConfig();
         }
+    }
+
+    private void setItem(String path, ItemStack item, int i, int index) {
+        ConfigurationSection slot = getConfig().createSection(path + ".inv.items." + index);
+
+        slot.set("slot", i);
+        slot.set("Item.Material", item.getType().name());
+        slot.set("Item.Amount", item.getAmount());
+        slot.set("Item.Durability", item.getDurability());
+
+
+        ItemMeta meta = item.getItemMeta();
+        if (item.hasItemMeta()) {
+            slot.set("Item.Meta.display-name", meta.getDisplayName());
+            slot.set("Item.Meta.lore", meta.getLore());
+
+            if (item.getItemMeta().hasCustomModelData()) {
+                slot.set("CustomModelData", meta.getCustomModelData());
+            }
+        }
+        slot.set("Item.data", item.getDurability());
+
     }
 
     public Inventory getInventory(String path) {
@@ -382,27 +305,33 @@ public class Config {
                     int slot = getInteger(name + ".slot");
                     int amount = getInteger(name + ".Item.Amount");
                     String type = getString(name + ".Item.Material");
-
                     ItemStack item = new ItemStack(Material.valueOf(type));
-                    ItemMeta meta = item.getItemMeta();
+                    getItemStack("", false);
+                    if (getConfig().get(name + ".Item.Meta") != null) {
+                        String display = getString(name + ".Item.Meta.display-name");
+                        int CustomModel = getInteger(name + ".CustomModelData");
+                        ItemMeta meta = item.getItemMeta();
+                        meta.setCustomModelData(CustomModel);
+                        meta.setDisplayName(display);
+
+                        item.setItemMeta(meta);
+                    }
+
                     item.setAmount(amount);
                     inv.setItem(slot, item);
-                    getConfig().set(name + ".test", "asdf");
-
                 }
             }
-            saveConfig();
             return inv;
-
         }
-
         return null;
     }
 
 
     public Location getLocation(String path) {
         if (getConfig().get(path) != null) {
-            return new Location(Bukkit.getWorld(getString(path + ".world")), getDouble(path + ".x"), getDouble(path + ".y"), getDouble(path + ".z"));
+            return new Location(Bukkit.getWorld(getString(path + ".world")),
+                    getDouble(path + ".x"), getDouble(path + ".y"), getDouble(path + ".z"), (float) getDouble(path + ".yaw"), (float) getDouble(path + ".pitch"));
+
         }
         return null;
     }
@@ -526,7 +455,7 @@ public class Config {
      * @param results
      */
     public void setFileListTabComplete(ArrayList<String> results) {
-        this.file = new File(plugin.getDataFolder(), name);
+        this.file = new File(SkyExcel.newPlugin.getDataFolder(), name);
         File[] test = this.file.listFiles();
         for (File file : test) {
             if (file != null) {
@@ -536,6 +465,13 @@ public class Config {
                 results.add(name);
             }
         }
+    }
+
+
+
+    public File[] getFileList() {
+        this.file = new File(SkyExcel.newPlugin.getDataFolder(), name);
+        return this.file.listFiles();
     }
 
     public ConfigurationSection newSection(String path) {

@@ -1,11 +1,10 @@
 package me.github.skyexcelcore.command;
 
 import me.github.skyexcelcore.annotation.Adjust;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Adjust(command = "Hi",console = true)
+@Adjust(command = "Hi")
 public class test {
 
     @Adjust(label = true)
@@ -33,7 +32,7 @@ public class test {
 
     }
 
-    @Adjust(args = "hi", parameter = 2, tab = true) //Hi test
+    @Adjust(args = "hi", parameter = 1, tab = true) //Hi test
     public void asdf(Player sender, String[] args) {
         sender.sendMessage("Test");
     }
