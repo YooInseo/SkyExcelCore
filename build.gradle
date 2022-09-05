@@ -1,3 +1,4 @@
+
 plugins {
     id 'java'
     id 'kr.entree.spigradle' version '2.2.4'
@@ -7,6 +8,18 @@ group 'org.sample'
 version '1.0-SNAPSHOT'
 apply plugin: 'groovy'
 
+// maven-publish 추가 시작
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'SkyExcel'
+            artifactId 'SkyExcelCore'
+            version '0.1'
+            from components.java
+        }
+    }
+}
 
 repositories {
     maven { url 'https://jitpack.io' }
@@ -21,9 +34,6 @@ dependencies {
 
 }
 
-jar {
-    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission\\플러그인테스트\\1.18.2\\plugins\\'))
-}
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
