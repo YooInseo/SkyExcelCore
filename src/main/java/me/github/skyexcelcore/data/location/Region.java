@@ -1,4 +1,4 @@
-package me.github.skyexcelcore.data;
+package me.github.skyexcelcore.data.location;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

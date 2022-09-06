@@ -1,10 +1,13 @@
 package me.github.skyexcelcore.command;
 
+import me.github.skyexcelcore.SkyExcel;
 import me.github.skyexcelcore.annotation.Adjust;
+import me.github.skyexcelcore.annotation.Command;
+import me.github.skyexcelcore.annotation.Registerclass;
 import org.bukkit.entity.Player;
 
 @Adjust(command = "abcd")
-public class abcd {
+public class abcd implements Command {
 
     @Adjust(args = "test", tab = true) //Hi test
     public void test(Player sender) {
@@ -19,5 +22,10 @@ public class abcd {
     @Adjust(args = "hi", parameter = 2) //Hi test
     public void asdf(Player sender, int value) {
         sender.sendMessage("Test" + value);
+    }
+
+    @Override
+    public void register() {
+        new Registerclass(this, SkyExcel.newPlugin);
     }
 }

@@ -1,4 +1,4 @@
-package me.github.skyexcelcore.data;
+package me.github.skyexcelcore.data.item;
 
 import me.github.skyexcelcore.SkyExcel;
 import org.bukkit.Bukkit;

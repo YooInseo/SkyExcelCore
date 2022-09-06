@@ -74,10 +74,11 @@ public class Registerclass implements CommandExecutor, TabCompleter {
                             Class<?> newclazz = Class.forName(clazz.getName());
                             Object object = newclazz.newInstance();
                             method.invoke(object, sender, args);
+                            //TODO /Test test test asdf 를 하면 test test 가 동시에 호출되는 문제.
+
                             System.out.println("Test");
                         }
                     }
-
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -119,7 +120,6 @@ public class Registerclass implements CommandExecutor, TabCompleter {
                             }
                         }
                     }
-
                 }
             }
         } catch (ClassNotFoundException e) {

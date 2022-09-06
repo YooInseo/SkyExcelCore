@@ -1,4 +1,4 @@
-package me.github.skyexcelcore.data;
+package me.github.skyexcelcore.data.time;
 
 import org.bukkit.event.Listener;
 

@@ -1,16 +1,13 @@
-package me.github.skyexcelcore.data;
+package me.github.skyexcelcore.data.file;
 
 import me.github.skyexcelcore.SkyExcel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -250,7 +247,7 @@ public class Config {
     public void saveInventory(String path, Inventory inv) {
         for (HumanEntity viewers : inv.getViewers()) {
             InventoryView OpenInv = viewers.getOpenInventory();
-            if (OpenInv.getTopInventory().equals(inv) && !inv.getType().equals(InventoryType.CRAFTING)) {
+            if (OpenInv.getTopInventory().equals(inv)) {
                 for (int i = 0; i < inv.getSize(); i++) {
                     ItemStack item = inv.getItem(i);
                     setString(path + ".inv.title", OpenInv.getTitle());
@@ -298,7 +295,6 @@ public class Config {
         if (getConfig().get(path + ".inv.size") != null && getConfig().get(path + ".inv.title") != null) {
             Inventory inv = Bukkit.createInventory(null, getInteger(path + ".inv.size"), getString(path + ".inv.title"));
             for (int i = 0; i < inv.getSize(); i++) {
-
                 String name = path + ".inv.items." + i;
 
                 if (getConfig().get(name) != null) {
@@ -315,8 +311,8 @@ public class Config {
                         meta.setDisplayName(display);
 
                         item.setItemMeta(meta);
-                    }
 
+                    }
                     item.setAmount(amount);
                     inv.setItem(slot, item);
                 }
@@ -329,6 +325,7 @@ public class Config {
 
     public Location getLocation(String path) {
         if (getConfig().get(path) != null) {
+
             return new Location(Bukkit.getWorld(getString(path + ".world")),
                     getDouble(path + ".x"), getDouble(path + ".y"), getDouble(path + ".z"), (float) getDouble(path + ".yaw"), (float) getDouble(path + ".pitch"));
 
