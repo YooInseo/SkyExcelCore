@@ -49,7 +49,7 @@ public class NBTMeta{
             data.set(new NamespacedKey(plugin, key), PersistentDataType.LONG, value);
         } else {
             data.set(new NamespacedKey(plugin, key), PersistentDataType.LONG, value);
-            Merge(key);
+
         }
 
         return value;
@@ -195,12 +195,17 @@ public class NBTMeta{
         return false;
     }
 
-    public void Merge(String originalkey) {
+    public void Merge() {
 
         if (getItemData() != null) {
             if (hasDataKey()) {
                 for (NamespacedKey keys : data.getKeys()) {
                     String key = keys.getKey();
+                    if(getByte(key) != 0){
+
+                    } else if ( getByteList(key) != null){
+
+                    }
                     Bukkit.getConsoleSender().sendMessage("null 아님" + key);
                 }
             }

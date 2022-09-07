@@ -14,6 +14,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -244,27 +245,32 @@ public class Config {
         return null;
     }
 
-    public void saveInventory(String path, Inventory inv) {
+
+    public void saveInventory(String path, @NotNull Inventory inv) {
         for (HumanEntity viewers : inv.getViewers()) {
-            InventoryView OpenInv = viewers.getOpenInventory();
-            if (OpenInv.getTopInventory().equals(inv)) {
-                for (int i = 0; i < inv.getSize(); i++) {
-                    ItemStack item = inv.getItem(i);
-                    setString(path + ".inv.title", OpenInv.getTitle());
-                    setInteger(path + ".inv.size", inv.getSize());
-                    if (item != null) {
-                        if (getConfig().get(path + ".inv.items") == null) {
-                            setItem(path, item, i, 0);
+            if(viewers != null){
+                InventoryView OpenInv = viewers.getOpenInventory();
+                if (OpenInv.getTopInventory().equals(inv)) {
+                    for (int i = 0; i < inv.getSize(); i++) {
+                        ItemStack item = inv.getItem(i);
+                        setString(path + ".inv.title", OpenInv.getTitle());
+                        setInteger(path + ".inv.size", inv.getSize());
+                        if (item != null) {
+                            if (getConfig().get(path + ".inv.items") == null) {
+                                setItem(path, item, i, 0);
+                            } else {
+
+                                setItem(path, item, i, i);
+                                getConfig().set(getConfig().get(path + ".inv.items") + ".test", "asdf");
+
+                            }
                         } else {
-
-                            setItem(path, item, i, i);
-                            getConfig().set(getConfig().get(path + ".inv.items") + ".test", "asdf");
-
+                            getConfig().set(path + ".inv.items." + i, null);
                         }
-                    } else {
-                        getConfig().set(path + ".inv.items." + i, null);
                     }
                 }
+            } else{
+                Bukkit.getConsoleSender().sendMessage("Viewer is null");
             }
         }
     }
@@ -302,17 +308,18 @@ public class Config {
                     int amount = getInteger(name + ".Item.Amount");
                     String type = getString(name + ".Item.Material");
                     ItemStack item = new ItemStack(Material.valueOf(type));
-                    getItemStack("", false);
+
                     if (getConfig().get(name + ".Item.Meta") != null) {
                         String display = getString(name + ".Item.Meta.display-name");
                         int CustomModel = getInteger(name + ".CustomModelData");
+
                         ItemMeta meta = item.getItemMeta();
+
                         meta.setCustomModelData(CustomModel);
                         meta.setDisplayName(display);
-
                         item.setItemMeta(meta);
-
                     }
+
                     item.setAmount(amount);
                     inv.setItem(slot, item);
                 }
